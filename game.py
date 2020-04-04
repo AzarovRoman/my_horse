@@ -4,8 +4,9 @@ from itertools import product, permutations, chain
 from string import ascii_uppercase, digits
 from collections import namedtuple
 
-
 coordinates = namedtuple('coord', ('x', 'y'))
+DIGITS = digits[1:9]
+LETTERS = ascii_uppercase[:8]
 
 
 class Cell:
@@ -27,39 +28,30 @@ class Field:
         self.field = []
 
     def filling(self):
-        for i in range(8):
+        for row_index in range(8):
             line = []
-            for j in range(8):
+            for column_index in range(8):
                 cell = Cell()
                 line.append(cell)
             self.field.append(line)
         return self.field
 
     def visual(self):
-        numb_counter = 1
+        for number, line in zip(DIGITS, self.field):
+            print('--------' * 8)
+            print(number, end='')
+            print('|       ' * 8)
+            for element in line:
+                print(f' |   {element.fill()}  ', end='')
+            print()
+            print(' |      ' * 8)
 
-        for k in self.field:
-            numb = digits[numb_counter]
-            print('  ----------------------------------------------------------------')
-            print(
-                numb + '|       |       |       |       |       |       |       |       |')
-            for i in k:
-                print(' |   ' + i.fill() + '  ', end='')
-            print('')
-            print(' |       |       |       |       |       |       |       |       |')
-            numb_counter += 1
-
-        alph = []
-        for i in range(1, 9):
-            alph.append('     ' + str(i) + '  ')
-
-        for i in ascii_uppercase[:8]:
-            print('     ' + i + '  ', end='')
-        print('')
+        for letter in LETTERS:
+            print(f'     {letter}  ', end='')
+        print()
 
 
 class Horse:
-
     def __init__(self, field):
         self.field = field
         self.current_coordinates = None
@@ -67,23 +59,23 @@ class Horse:
     def convert_coordinates(self, coordinate):
         try:
             y_coord, x_coord = coordinate
-            y_coord = ascii_uppercase[:8].index(y_coord.upper())
-            x_coord = digits[1:9].index(x_coord)
+            y_coord = LETTERS.index(y_coord.upper())
+            x_coord = DIGITS.index(x_coord)
             return y_coord, x_coord
 
         except ValueError:
             return None
 
-    def move(self, coordinates_movment):
-        y_coord, x_coord = coordinates_movment
+    def move(self, coordinates_movement):
+        x_coord, y_coord = coordinates_movement
 
         if self.current_coordinates is not None:
-            y_current, x_current = self.current_coordinates
+            x_current, y_current = self.current_coordinates
             self.field[y_current][x_current].check_use = True
             self.field[y_current][x_current].check_horse = False
 
         self.field[y_coord][x_coord].check_horse = True
-        self.current_coordinates = coordinates(y_coord, x_coord)
+        self.current_coordinates = coordinates(x_coord, y_coord)
 
         return False
 
@@ -97,7 +89,7 @@ class Horse:
             y_res, x_res = abs(y_current - y_coord), abs(x_current - x_coord)
 
             if not self.field[y_coord][x_coord].check_use:
-                return (y_res, x_res) in ((1, 2), (2, 1))
+                return (x_res, y_res) in ((2, 1), (1, 2))
 
         except TypeError:
             return False
@@ -110,9 +102,9 @@ class Horse:
         movements_list = []
 
         y_current, x_current = self.current_coordinates
-        coords = list(chain(*[permutations(i) for i in product(a, b)]))
+        coords = list(chain(*[permutations(index) for index in product(b, a)]))
 
-        for y, x in coords:
+        for x, y in coords:
             y += y_current
             x += x_current
             new_coord = coordinates(y, x)
