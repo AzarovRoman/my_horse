@@ -35,32 +35,26 @@ class Field:
             self.field.append(line)
         return self.field
 
-    def visual(self, horse):
-        result_field = []
-        for i in horse.field:
-            line = []
-            for j in i:
-                line.append(j.fill())
-            result_field.append(line)
-            alph_counter = 0
+    def visual(self):
+        numb_counter = 1
 
-        for k in result_field:
-            alph = ascii_uppercase[alph_counter]
-            print(' ----------------------------------------------------------------')
+        for k in self.field:
+            numb = digits[numb_counter]
+            print('  ----------------------------------------------------------------')
             print(
-                alph + '|       |       |       |       |       |       |       |       |')
+                numb + '|       |       |       |       |       |       |       |       |')
             for i in k:
-                print(' |   ' + i + '  ', end='')
+                print(' |   ' + i.fill() + '  ', end='')
             print('')
             print(' |       |       |       |       |       |       |       |       |')
-            alph_counter += 1
+            numb_counter += 1
 
-        numb = []
+        alph = []
         for i in range(1, 9):
-            numb.append('     ' + str(i) + '  ')
+            alph.append('     ' + str(i) + '  ')
 
-        for i in numb:
-            print(i, end ='')
+        for i in ascii_uppercase[:8]:
+            print('     ' + i + '  ', end='')
         print('')
 
 
@@ -72,24 +66,24 @@ class Horse:
 
     def convert_coordinates(self, coordinate):
         try:
-            x_coord, y_coord = coordinate
-            x_coord = ascii_uppercase[:8].index(x_coord.upper())
-            y_coord = digits[1:9].index(y_coord)
-            return x_coord, y_coord
+            y_coord, x_coord = coordinate
+            y_coord = ascii_uppercase[:8].index(y_coord.upper())
+            x_coord = digits[1:9].index(x_coord)
+            return y_coord, x_coord
 
         except ValueError:
             return None
 
     def move(self, coordinates_movment):
-        x_coord, y_coord = coordinates_movment
+        y_coord, x_coord = coordinates_movment
 
         if self.current_coordinates is not None:
-            x_current, y_current = self.current_coordinates
-            self.field[x_current][y_current].check_use = True
-            self.field[x_current][y_current].check_horse = False
+            y_current, x_current = self.current_coordinates
+            self.field[y_current][x_current].check_use = True
+            self.field[y_current][x_current].check_horse = False
 
-        self.field[x_coord][y_coord].check_horse = True
-        self.current_coordinates = coordinates(x_coord, y_coord)
+        self.field[y_coord][x_coord].check_horse = True
+        self.current_coordinates = coordinates(y_coord, x_coord)
 
         return False
 
@@ -98,12 +92,12 @@ class Horse:
             return True
 
         try:
-            x_current, y_current = self.current_coordinates
-            x_coord, y_coord = coordinates_movements
-            x_res, y_res = abs(x_current - x_coord), abs(y_current - y_coord)
+            y_current, x_current = self.current_coordinates
+            y_coord, x_coord = coordinates_movements
+            y_res, x_res = abs(y_current - y_coord), abs(x_current - x_coord)
 
-            if not self.field[x_coord][y_coord].check_use:
-                return (x_res, y_res) in ((1, 2), (2, 1))
+            if not self.field[y_coord][x_coord].check_use:
+                return (y_res, x_res) in ((1, 2), (2, 1))
 
         except TypeError:
             return False
@@ -115,15 +109,15 @@ class Horse:
         b = [2, -2]
         movements_list = []
 
-        x_current, y_current = self.current_coordinates
+        y_current, x_current = self.current_coordinates
         coords = list(chain(*[permutations(i) for i in product(a, b)]))
 
-        for x, y in coords:
-            x += x_current
+        for y, x in coords:
             y += y_current
-            new_coord = coordinates(x, y)
+            x += x_current
+            new_coord = coordinates(y, x)
             if 8 > x >= 0 and 8 > y >= 0:
-                if not self.field[x][y].check_use:
+                if not self.field[y][x].check_use:
                     movements_list.append(new_coord)
 
         return movements_list
@@ -145,7 +139,7 @@ def game():
             print('-введена неверная координата-')
 
     while not check_finish:
-        field.visual(horse)
+        field.visual()
 
         if check_gamer:
             movement_coord = horse.convert_coordinates(input('введите координаты формата А1: '))
@@ -159,7 +153,6 @@ def game():
                 break
 
         else:
-            #print(horse.search_movements())
             horse.move(random.choice(horse.search_movements()))
             check_gamer = True
 
