@@ -152,6 +152,10 @@ def game():
 
         if horse.search_movements() == ():
             check_finish = True
+            if check_gamer:
+                print('Ура! Ты победил!')
+            else:
+                print('победила машина :(')
             break
 
 
