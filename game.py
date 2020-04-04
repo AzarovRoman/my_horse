@@ -97,8 +97,8 @@ class Horse:
         return False
 
     def search_movements(self):
-        a = [1, -1]
-        b = [2, -2]
+        a = (1, -1)
+        b = (2, -2)
         movements_list = []
 
         y_current, x_current = self.current_coordinates
@@ -140,23 +140,16 @@ def game():
                 horse.move(movement_coord)
                 check_gamer = False
 
-            if not horse.search_movements():
-                check_finish = True
-                break
-
         else:
             horse.move(random.choice(horse.search_movements()))
             check_gamer = True
 
         print('\n')
 
-        if horse.search_movements() == ():
+        if not horse.search_movements():
             check_finish = True
             if check_gamer:
                 print('Ура! Ты победил!')
             else:
                 print('победила машина :(')
             break
-
-
-game()
